@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KabawBaka? Tips | KabawBaka?</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="js/main.js"></script>
+</head>
+<body>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Check login status and update navbar
+  fetch('php/check_session.php')
+    .then(response => response.json())
+    .then(data => {
+      const userMenu = document.getElementById('userMenu');
+      if (data.logged_in) {
+        userMenu.innerHTML = `
+          <a href="user_dashboard.html" class="btn-login">Dashboard</a>
+          <a href="#" id="logoutBtn" class="btn-login">Logout</a>
+        `;
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+          e.preventDefault();
+          fetch('php/logout.php')
+            .then(() => {
+              window.location.reload();
+            });
+        });
+      }
+    });
+});
+</script>
+
+  <!-- 🌾 Navbar -->
+  <header>
+    <div class="logo">
+      <img src="assets/kabawbaka-logo.png" alt="KabawBaka Logo">
+      <h2>KabawBaka?</h2>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="marketplace.html">Marketplace</a></li>
+        <li><a href="kabawbaka.html">KabawBaka?</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div id="userMenu">
+      <a href="login.html" class="btn-login">Login</a>
+    </div>
+  </header>
+
+  <!-- 🌾 KabawBaka? Section -->
+  <section class="tips-section">
+    <h2>KabawBaka? 💭</h2>
+    <p>Share and learn practical farm tips from your fellow farmers.</p>
+
+    <!-- Post a Tip -->
+    <div class="post-tip">
+      <h3>Share a Tip</h3>
+      <form action="php/post_tip.php" method="POST">
+        <textarea name="content" id="tipContent" placeholder="KabawBaka? " required></textarea>
+        <button type="submit" class="btn-primary">Post Tip</button>
+      </form>
+    </div>
+
+    <!-- Tips List -->
+    <div class="tips-list" id="tipsList">
+      <!-- Tips will be loaded dynamically -->
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      fetchTips();
+
+      // Check for success parameter in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('success') === '1') {
+        showNotification('Tip posted successfully!', 'success');
+        // Remove the success parameter from URL
+        history.replaceState(null, null, window.location.pathname);
+      }
+    });
+
+    async function fetchTips() {
+      try {
+        const response = await fetch('php/fetch_tips.php');
+        const tips = await response.json();
+        displayTips(tips);
+      } catch (error) {
+        console.error('Error fetching tips:', error);
+      }
+    }
+
+    function displayTips(tips) {
+      const tipsList = document.getElementById('tipsList');
+      if (!tipsList) return;
+
+      tipsList.innerHTML = '';
+      tips.forEach(tip => {
+        const tipCard = document.createElement('div');
+        tipCard.className = 'tip-card';
+        tipCard.innerHTML = `
+          <p>${tip.content}</p>
+          <small>Posted by ${tip.full_name} on ${new Date(tip.created_at).toLocaleDateString()}</small>
+        `;
+        tipsList.appendChild(tipCard);
+      });
+    }
+    </script>
+  </section>
+
+  <!-- 🌾 Footer -->
+  <footer>
+    <p>© 2025 KabawBaka | Innovative • Sustainable • Agripreneurial</p>
+    <p>
+      <a href="#">Facebook</a> |
+      <a href="#">Instagram</a> |
+      <a href="#">Contact Us</a>
+    </p>
+  </footer>
+
+
+
+</body>
+</html>

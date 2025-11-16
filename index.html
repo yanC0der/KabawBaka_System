@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KabawBaka? | Empowering Farmers, One Click at a Time</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="js/main.js"></script>
+</head>
+<body>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Check login status and update navbar
+  fetch('php/check_session.php')
+    .then(response => response.json())
+    .then(data => {
+      const userMenu = document.getElementById('userMenu');
+      if (data.logged_in) {
+        userMenu.innerHTML = `
+          <a href="user_dashboard.html" class="btn-login">Dashboard</a>
+          <a href="#" id="logoutBtn" class="btn-login">Logout</a>
+        `;
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+          e.preventDefault();
+          fetch('php/logout.php')
+            .then(() => {
+              window.location.reload();
+            });
+        });
+      }
+    });
+});
+</script>
+
+  <!-- 🌾 Navbar -->
+  <header>
+    <div class="logo">
+      <img src="assets/kabawbaka-logo.png" alt="KabawBaka Logo">
+      <h2>KabawBaka?</h2>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="marketplace.html">Marketplace</a></li>
+        <li><a href="kabawbaka.html">KabawBaka?</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div id="userMenu">
+      <a href="login.html" class="btn-login">Login</a>
+    </div>
+  </header>
+
+  <!-- 🌾 Hero Section -->
+  <section class="hero">
+    <h1>Empowering Farmers, One Click at a Time.</h1>
+    <p>Digitalizing the livestock and farm input market for a sustainable tomorrow.</p>
+    <a href="marketplace.html" class="btn-primary">Explore the Market</a>
+  </section>
+
+  <!-- 🌿 Features Section -->
+  <section class="features">
+    <div class="feature-card">
+      <h3>🛒 Buy Farm Inputs</h3>
+      <p>Access affordable feeds, tools, and medicines — anytime, anywhere.</p>
+    </div>
+    <div class="feature-card">
+      <h3>🐖 Sell Livestock</h3>
+      <p>Reach more buyers and expand your market beyond your local barangay.</p>
+    </div>
+    <div class="feature-card">
+      <h3>💬 KabawBaka? Tips</h3>
+      <p>Share and learn practical farm tips from your fellow farmers.</p>
+    </div>
+    <div class="feature-card">
+      <h3>📦 Track Orders</h3>
+      <p>Stay updated with your order status — from request to delivery.</p>
+    </div>
+  </section>
+
+  <!-- 🌾 KabawBaka? Section -->
+  <section class="tips-section">
+    <h2>KabawBaka? 💭</h2>
+    <div id="dynamicTips">
+      <!-- Tips will be loaded dynamically -->
+    </div>
+    <a href="kabawbaka.html" class="btn-login" style="margin-top: 20px; display:inline-block;">See More Tips</a>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      fetchLatestTips();
+    });
+
+    async function fetchLatestTips() {
+      try {
+        const response = await fetch('php/fetch_tips.php');
+        const tips = await response.json();
+        displayLatestTips(tips.slice(0, 3)); // Show only the latest 3 tips
+      } catch (error) {
+        console.error('Error fetching tips:', error);
+        // Fallback to static tips
+        displayFallbackTips();
+      }
+    }
+
+    function displayLatestTips(tips) {
+      const dynamicTips = document.getElementById('dynamicTips');
+      if (!dynamicTips) return;
+
+      dynamicTips.innerHTML = '';
+      tips.forEach(tip => {
+        const tipCard = document.createElement('div');
+        tipCard.className = 'tip-card';
+        tipCard.innerHTML = `
+          <p>${tip.content}</p>
+          <small>Posted by ${tip.full_name} on ${new Date(tip.created_at).toLocaleDateString()}</small>
+        `;
+        dynamicTips.appendChild(tipCard);
+      });
+    }
+
+    function displayFallbackTips() {
+      const dynamicTips = document.getElementById('dynamicTips');
+      if (!dynamicTips) return;
+
+      dynamicTips.innerHTML = `
+        <div class="tip-card">
+          <p>KabawBaka? Hogs eat better when fed at consistent times every day!</p>
+        </div>
+        <div class="tip-card">
+          <p>KabawBaka? Goats love madre de cacao leaves — rich in protein!</p>
+        </div>
+        <div class="tip-card">
+          <p>KabawBaka? Proper storage of feeds can increase their shelf life by 30%!</p>
+        </div>
+      `;
+    }
+    </script>
+  </section>
+
+  <!-- 🌾 Footer -->
+  <footer>
+    <p>© 2025 KabawBaka | Innovative • Sustainable • Agripreneurial</p>
+    <p>
+      <a href="#">Facebook</a> |
+      <a href="#">Instagram</a> |
+      <a href="#">Contact Us</a>
+    </p>
+  </footer>
+
+</body>
+</html>

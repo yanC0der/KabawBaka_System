@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | KabawBaka?</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="js/main.js"></script>
+</head>
+<body>
+
+  <!-- 🌾 Navbar -->
+  <header>
+    <div class="logo">
+      <img src="assets/kabawbaka-logo.png" alt="KabawBaka Logo">
+      <h2>KabawBaka?</h2>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="marketplace.html">Marketplace</a></li>
+        <li><a href="kabawbaka.html">KabawBaka?</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div id="userMenu">
+      <a href="user_dashboard.html" class="btn-login">Dashboard</a>
+      <a href="#" id="logoutBtn" class="btn-login">Logout</a>
+    </div>
+  </header>
+
+  <!-- 🌾 Dashboard Section -->
+  <section class="dashboard">
+    <h1>My Dashboard</h1>
+    <p>Welcome back! Manage your orders and account here.</p>
+
+    <!-- Profile Section -->
+    <div class="profile-section">
+      <h2>My Profile</h2>
+      <div id="profileContainer">
+        <!-- Profile will be loaded dynamically -->
+      </div>
+    </div>
+
+    <!-- Order History -->
+    <div class="order-history">
+      <h2>Order History</h2>
+      <div id="ordersContainer">
+        <!-- Orders will be loaded dynamically -->
+      </div>
+    </div>
+
+    <!-- Cart Section -->
+    <div class="profile-section">
+      <h2>My Barn (Cart)</h2>
+      <div id="cartContainer">
+        <!-- Cart will be loaded dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Cart Sidebar -->
+  <div id="cartSidebar" class="cart-sidebar">
+    <div class="cart-header">
+      <h3>My Barn (Cart)</h3>
+      <span class="cart-close">&times;</span>
+    </div>
+    <div id="cartItems" class="cart-items">
+      <!-- Cart items will be loaded here -->
+    </div>
+    <div class="cart-footer">
+      <button id="checkoutBtn" class="btn-primary">Checkout</button>
+    </div>
+  </div>
+
+  <!-- Cart Toggle Button -->
+  <button id="cartToggle" class="cart-toggle">
+    <span class="cart-icon">🐖</span>
+    <span id="cartCount" class="cart-count">0</span>
+  </button>
+
+  <!-- 🌾 Footer -->
+  <footer>
+    <p>© 2025 KabawBaka | Innovative • Sustainable • Agripreneurial</p>
+    <p>
+      <a href="#">Facebook</a> |
+      <a href="#">Instagram</a> |
+      <a href="#">Contact Us</a>
+    </p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if user is logged in
+      fetch('php/check_session.php')
+        .then(response => response.json())
+        .then(data => {
+          if (!data.logged_in) {
+            window.location.href = 'login.html';
+          } else {
+            fetchProfile();
+            fetchOrders();
+            fetchCart();
+            initializeCart();
+          }
+        });
+
+      // Logout functionality
+      document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        fetch('php/logout.php')
+          .then(() => {
+            window.location.href = 'index.html';
+          });
+      });
+    });
+
+    function fetchProfile() {
+      fetch('php/fetch_profile.php')
+        .then(response => response.json())
+        .then(profile => {
+          displayProfile(profile);
+        })
+        .catch(error => console.error('Error fetching profile:', error));
+    }
+
+    function displayProfile(profile) {
+      const container = document.getElementById('profileContainer');
+      container.innerHTML = `
+        <div class="profile-view">
+          <div class="profile-info">
+            <p><strong>Full Name:</strong> <span id="displayName">${profile.full_name}</span></p>
+            <p><strong>Email:</strong> <span id="displayEmail">${profile.email}</span></p>
+            <p><strong>Contact:</strong> <span id="displayContact">${profile.contact_number || 'Not provided'}</span></p>
+            <p><strong>Address:</strong> <span id="displayAddress">${profile.address || 'Not provided'}</span></p>
+            <p><strong>Member Since:</strong> ${new Date(profile.date_registered).toLocaleDateString()}</p>
+          </div>
+          <button id="editProfileBtn" class="btn-primary">Edit Profile</button>
+        </div>
+        <div class="profile-edit" style="display: none;">
+          <form id="profileForm">
+            <div class="form-group">
+              <label for="full_name">Full Name:</label>
+              <input type="text" id="full_name" name="full_name" value="${profile.full_name}" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <input type="email" id="email" name="email" value="${profile.email}" required>
+            </div>
+            <div class="form-group">
+              <label for="contact_number">Contact Number:</label>
+              <input type="text" id="contact_number" name="contact_number" value="${profile.contact_number || ''}">
+            </div>
+            <div class="form-group">
+              <label for="address">Address:</label>
+              <input type="text" id="address" name="address" value="${profile.address || ''}">
+            </div>
+            <div class="form-group">
+              <label for="current_password">Current Password (required for password change):</label>
+              <input type="password" id="current_password" name="current_password">
+            </div>
+            <div class="form-group">
+              <label for="new_password">New Password (leave blank to keep current):</label>
+              <input type="password" id="new_password" name="new_password">
+            </div>
+            <button type="submit" class="btn-primary">Save Changes</button>
+            <button type="button" id="cancelEditBtn" class="btn-secondary">Cancel</button>
+          </form>
+        </div>
+      `;
+
+      // Edit profile button
+      document.getElementById('editProfileBtn').addEventListener('click', function() {
+        document.querySelector('.profile-view').style.display = 'none';
+        document.querySelector('.profile-edit').style.display = 'block';
+      });
+
+      // Cancel edit
+      document.getElementById('cancelEditBtn').addEventListener('click', function() {
+        document.querySelector('.profile-edit').style.display = 'none';
+        document.querySelector('.profile-view').style.display = 'block';
+      });
+
+      // Submit form
+      document.getElementById('profileForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        updateProfile();
+      });
+    }
+
+    function updateProfile() {
+      const formData = new FormData(document.getElementById('profileForm'));
+
+      fetch('php/update_profile.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(result => {
+        if (result.success) {
+          alert('Profile updated successfully!');
+          fetchProfile(); // Refresh profile data
+        } else {
+          alert('Error: ' + result.message);
+        }
+      })
+      .catch(error => console.error('Error updating profile:', error));
+    }
+
+    function fetchOrders() {
+      fetch('php/fetch_orders.php')
+        .then(response => response.json())
+        .then(orders => {
+          displayOrders(orders);
+        })
+        .catch(error => console.error('Error fetching orders:', error));
+    }
+
+    function displayOrders(orders) {
+      const container = document.getElementById('ordersContainer');
+      if (orders.length === 0) {
+        container.innerHTML = '<p>No orders found.</p>';
+        return;
+      }
+
+      container.innerHTML = orders.map(order => `
+        <div class="order-card">
+          <h3>Order #${order.order_id}</h3>
+          <p><strong>Product:</strong> ${order.product_name}</p>
+          <p><strong>Quantity:</strong> ${order.quantity}</p>
+          <p><strong>Total Price:</strong> ₱${order.total_price}</p>
+          <p><strong>Status:</strong> <span class="status-${order.status.toLowerCase()}">${order.status}</span></p>
+          <p><strong>Date:</strong> ${new Date(order.order_date).toLocaleDateString()}</p>
+        </div>
+      `).join('');
+    }
+
+    function fetchCart() {
+      fetch('php/fetch_cart.php')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            displayCart(data.cart);
+          } else {
+            console.error('Error fetching cart:', data.message);
+          }
+        })
+        .catch(error => console.error('Error fetching cart:', error));
+    }
+
+    function displayCart(cart) {
+      const container = document.getElementById('cartContainer');
+      const cartItems = document.getElementById('cartItems');
+      const cartCount = document.getElementById('cartCount');
+
+      if (cart.length === 0) {
+        container.innerHTML = '<p>Your barn is empty. Visit the marketplace to add some items!</p>';
+        cartItems.innerHTML = '<p>Your barn is empty.</p>';
+        cartCount.textContent = '0';
+        return;
+      }
+
+      // Update cart count
+      cartCount.textContent = cart.length;
+
+      // Display cart in dashboard
+      container.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <img src="${item.image}" alt="${item.product_name}" style="width: 50px; height: 50px; object-fit: cover;">
+          <div class="cart-item-info">
+            <h4>${item.product_name}</h4>
+            <p>Quantity: ${item.quantity}</p>
+            <p>Price: ₱${item.price}</p>
+            <p>Seller: ${item.seller_name}</p>
+          </div>
+        </div>
+      `).join('');
+
+      // Update sidebar cart
+      cartItems.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <img src="${item.image}" alt="${item.product_name}" style="width: 50px; height: 50px; object-fit: cover;">
+          <div class="cart-item-info">
+            <h4>${item.product_name}</h4>
+            <p>Qty: ${item.quantity} × ₱${item.price}</p>
+            <button class="remove-from-cart" data-cart-id="${item.cart_id}">Remove</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function initializeCart() {
+      // Cart toggle functionality
+      const cartToggle = document.getElementById('cartToggle');
+      const cartSidebar = document.getElementById('cartSidebar');
+      const cartClose = document.querySelector('.cart-close');
+
+      cartToggle.addEventListener('click', function() {
+        cartSidebar.classList.toggle('active');
+      });
+
+      cartClose.addEventListener('click', function() {
+        cartSidebar.classList.remove('active');
+      });
+
+      // Remove from cart functionality
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-from-cart')) {
+          const cartId = e.target.dataset.cartId;
+          removeFromCart(cartId);
+        }
+      });
+    }
+
+    function removeFromCart(cartId) {
+      fetch('php/remove_from_cart.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'cart_id=' + cartId
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          fetchCart(); // Refresh cart
+        } else {
+          alert('Error removing item: ' + data.message);
+        }
+      })
+      .catch(error => console.error('Error removing item:', error));
+    }
+  </script>
+
+</body>
+</html>

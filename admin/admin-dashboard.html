@@ -1,0 +1,66 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header("Location: admin-login.html");
+    exit();
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | KabawBaka</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="dashboard-body">
+  <header class="admin-header">
+    <img src="../assets/kabawbaka-logo.png" alt="Logo" class="admin-logo-small">
+    <h1>KabawBaka Admin Dashboard</h1>
+  </header>
+
+  <nav class="sidebar">
+    <ul>
+      <li><a href="admin-dashboard.html">📊 Dashboard</a></li>
+      <li><a href="manage_livestock.php">🐄 Manage Livestock</a></li>
+      <li><a href="manage_products.php">📦 Manage Products</a></li>
+      <li><a href="manage_tips.php">💬 Manage Tips</a></li>
+      <li><a href="manage_users.php">👤 Users</a></li>
+      <li><a href="manage_orders.php">🧾 Orders</a></li>
+      <li><a href="announcements.php">📢 Announcements</a></li>
+      <li><a href="settings.php">⚙️ Settings</a></li>
+      <li class="logout"><a href="admin-login.html">🚪 Logout</a></li>
+    </ul>
+  </nav>
+
+  <main class="main-content">
+    <h2>Welcome, Admin!</h2>
+    <p>Here’s a quick overview of your system:</p>
+    <div class="cards">
+      <div class="card">🐖 Total Livestock: <span id="totalLivestock">Loading...</span></div>
+      <div class="card">👥 Registered Users: <span id="totalUsers">Loading...</span></div>
+      <div class="card">💰 Total Orders: <span id="totalOrders">Loading...</span></div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Fetch dashboard statistics
+      fetch('../php/fetch_dashboard_stats.php')
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('totalLivestock').textContent = data.totalLivestock;
+          document.getElementById('totalUsers').textContent = data.totalUsers;
+          document.getElementById('totalOrders').textContent = data.totalOrders;
+        })
+        .catch(error => {
+          console.error('Error fetching dashboard stats:', error);
+          document.getElementById('totalLivestock').textContent = 'Error';
+          document.getElementById('totalUsers').textContent = 'Error';
+          document.getElementById('totalOrders').textContent = 'Error';
+        });
+    });
+    </script>
+  </main>
+</body>
+</html>

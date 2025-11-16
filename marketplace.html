@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketplace | KabawBaka?</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="js/main.js"></script>
+</head>
+<body>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Check login status and update navbar
+  fetch('php/check_session.php')
+    .then(response => response.json())
+    .then(data => {
+      const userMenu = document.getElementById('userMenu');
+      if (data.logged_in) {
+        userMenu.innerHTML = `
+          <a href="user_dashboard.html" class="btn-login">Dashboard</a>
+          <a href="#" id="logoutBtn" class="btn-login">Logout</a>
+        `;
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+          e.preventDefault();
+          fetch('php/logout.php')
+            .then(() => {
+              window.location.reload();
+            });
+        });
+      }
+    });
+});
+</script>
+
+  <!-- 🌾 Navbar -->
+  <header>
+    <div class="logo">
+      <img src="assets/kabawbaka-logo.png" alt="KabawBaka Logo">
+      <h2>KabawBaka?</h2>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="marketplace.html">Marketplace</a></li>
+        <li><a href="kabawbaka.html">KabawBaka?</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div id="userMenu">
+      <a href="login.html" class="btn-login">Login</a>
+    </div>
+  </header>
+
+  <!-- 🌾 Marketplace Section -->
+  <section class="marketplace">
+    <h1>Marketplace</h1>
+    <p>Browse and buy farm inputs, livestock, and more.</p>
+
+    <!-- Marketplace Tabs -->
+    <div class="marketplace-tabs">
+      <button class="tab-btn active" data-tab="products">
+        <span class="tab-icon">📦</span>
+        Farm Products
+      </button>
+      <button class="tab-btn" data-tab="livestock">
+        <span class="tab-icon">🐄</span>
+        Livestock
+      </button>
+    </div>
+
+    <!-- Products Tab Content -->
+    <div id="productsTab" class="tab-content active">
+      <!-- Search and Filter for Products -->
+      <div class="search-filter">
+        <input type="text" id="productSearch" placeholder="🔍 Search products...">
+        <select id="productCategory">
+          <option value="">All Categories</option>
+          <option value="Feeds">Feeds</option>
+          <option value="Tools">Tools</option>
+          <option value="Medicines">Medicines</option>
+          <option value="Seeds">Seeds</option>
+          <option value="Fertilizers">Fertilizers</option>
+        </select>
+      </div>
+
+      <!-- Product Grid -->
+      <div class="product-grid" id="productGrid">
+        <!-- Products will be loaded dynamically -->
+      </div>
+    </div>
+
+    <!-- Livestock Tab Content -->
+    <div id="livestockTab" class="tab-content">
+      <!-- Search and Filter for Livestock -->
+      <div class="search-filter">
+        <input type="text" id="livestockSearch" placeholder="🔍 Search livestock...">
+        <select id="livestockType">
+          <option value="">All Types</option>
+          <option value="Cow">Cow</option>
+          <option value="Carabao">Carabao</option>
+          <option value="Pig">Pig</option>
+          <option value="Chicken">Chicken</option>
+          <option value="Goat">Goat</option>
+          <option value="Sheep">Sheep</option>
+        </select>
+        <select id="healthStatus">
+          <option value="">All Health Status</option>
+          <option value="Healthy">Healthy</option>
+          <option value="Sick">Sick</option>
+          <option value="Under Observation">Under Observation</option>
+        </select>
+      </div>
+
+      <!-- Livestock Grid -->
+      <div class="product-grid" id="livestockGrid">
+        <!-- Livestock will be loaded dynamically -->
+      </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="cart-sidebar">
+      <div class="cart-header">
+        <h3>My Barn (Cart)</h3>
+        <span class="cart-close">&times;</span>
+      </div>
+      <div id="cartItems" class="cart-items">
+        <!-- Cart items will be loaded here -->
+      </div>
+      <div class="cart-footer">
+        <button id="checkoutBtn" class="btn-primary">Checkout</button>
+      </div>
+    </div>
+
+    <!-- Cart Toggle Button -->
+    <button id="cartToggle" class="cart-toggle">
+      <span class="cart-icon">🐖</span>
+      <span id="cartCount" class="cart-count">0</span>
+    </button>
+
+    <!-- Order Modal -->
+    <div id="orderModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Place Order</h2>
+        <form id="orderForm">
+          <input type="hidden" id="orderProductId" name="product_id">
+          <div class="form-group">
+            <label for="orderQuantity">Quantity:</label>
+            <input type="number" id="orderQuantity" name="quantity" min="1" value="1" required>
+          </div>
+          <div class="form-group">
+            <p id="orderTotal">Total: ₱0.00</p>
+          </div>
+          <button type="submit" class="btn-primary">Confirm Order</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🌾 Footer -->
+  <footer>
+    <p>© 2025 KabawBaka | Innovative • Sustainable • Agripreneurial</p>
+    <p>
+      <a href="#">Facebook</a> |
+      <a href="#">Instagram</a> |
+      <a href="#">Contact Us</a>
+    </p>
+  </footer>
+
+
+
+</body>
+</html>
