@@ -12,10 +12,11 @@
 
   <script>
   document.addEventListener('DOMContentLoaded', function() {
-    fetch('php/navbar.php')
+    fetch('php/navbar.php?page=dashboard')
       .then(response => response.text())
       .then(html => {
         document.getElementById('navbar').innerHTML = html;
+
         const logout = document.getElementById('logoutBtn');
         if (logout) {
           logout.addEventListener('click', function(e) {
@@ -25,8 +26,11 @@
               .then(data => { if (data.success) window.location.href = 'login.html'; })
               .catch(() => window.location.href = 'index.html');
           });
+        } else {
+          console.log('Logout button not found in navbar');
         }
-      });
+      })
+      .catch(err => console.error('Error loading navbar:', err));
   });
   </script>
 

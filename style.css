@@ -47,10 +47,15 @@ header {
 .logo {
   display: flex;
   align-items: center;
-  color: #F5F2E7;
+  color: #ffffff;
   font-weight: 700;
   font-size: 1.5rem;
   opacity: 1;
+}
+
+.logo h2 {
+  color: #ffffff !important;
+  margin: 0;
 }
 
 .logo img {
