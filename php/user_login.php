@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (password_verify($password, $user['password']) || $password === $user['password']) {
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['role'] = $user['role'];
-            header("Location: ../user_dashboard.html");
+            header("Location: ../index.html");
             exit();
         } else {
             echo "Invalid password.";
