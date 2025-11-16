@@ -1,9 +1,10 @@
 # KabawBaka Project Fixes
 
 ## Issues to Fix
-- [/] Create missing PHP files: check_session.php, logout.php
-- [/] Fix database connection inconsistencies (db_connection.php -> db_connect.php)
-- [/] Update login redirect to homepage instead of user dashboard
+## Issues to Fix(done)
+- [x] Create missing PHP files: check_session.php, logout.php
+- [x] Fix database connection inconsistencies (db_connection.php -> db_connect.php)
+- [x] Update login redirect to homepage instead of user dashboard
 - [x] Add session-based navbar changes across all pages
 - [x] Add cart functionality to user dashboard
 - [x] Update JavaScript to initialize cart on dashboard page

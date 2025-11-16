@@ -656,6 +656,32 @@ function displayCart(cartItems) {
     totalDiv.className = 'cart-total';
     totalDiv.innerHTML = `<strong>Total: ₱${total.toFixed(2)}</strong>`;
     cartItemsContainer.appendChild(totalDiv);
+
+    // Also update dashboard cart view if present
+    const dashboardContainer = document.getElementById('cartContainer');
+    if (dashboardContainer) {
+        if (cartItems.length === 0) {
+            dashboardContainer.innerHTML = '<p>Your barn is empty. Visit the marketplace to add some items!</p>';
+        } else {
+            dashboardContainer.innerHTML = cartItems.map(item => `
+                <div class="cart-item">
+                    <img src="uploads/${item.image || 'default.jpg'}" alt="${item.product_name}" style="width: 50px; height: 50px; object-fit: cover;">
+                    <div class="cart-item-info">
+                        <h4>${item.product_name}</h4>
+                        <p>Quantity: ${item.quantity}</p>
+                        <p>Price: ₱${item.price}</p>
+                        <p>Seller: ${item.seller_name}</p>
+                        <div class="cart-item-controls">
+                            <button onclick="updateCartQuantity(${item.cart_id}, ${item.quantity - 1})">-</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="updateCartQuantity(${item.cart_id}, ${item.quantity + 1})">+</button>
+                            <button onclick="removeFromCart(${item.cart_id})" class="remove-btn">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
 }
 
 function updateCartCount(count) {

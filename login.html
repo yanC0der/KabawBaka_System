@@ -8,52 +8,27 @@
   <script src="js/main.js"></script>
 </head>
 <body>
+  <div id="navbar"></div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Check login status and update navbar
-  fetch('php/check_session.php')
-    .then(response => response.json())
-    .then(data => {
-      const userMenu = document.getElementById('userMenu');
-      if (data.logged_in) {
-        userMenu.innerHTML = `
-          <a href="user_dashboard.html" class="btn-login">Dashboard</a>
-          <a href="#" id="logoutBtn" class="btn-login">Logout</a>
-        `;
-
-        // Logout functionality
-        document.getElementById('logoutBtn').addEventListener('click', function(e) {
-          e.preventDefault();
-          fetch('php/logout.php')
-            .then(() => {
-              window.location.reload();
-            });
-        });
-      }
-    });
-});
-</script>
-
-  <!-- 🌾 Navbar -->
-  <header>
-    <div class="logo">
-      <img src="assets/kabawbaka-logo.png" alt="KabawBaka Logo">
-      <h2>KabawBaka?</h2>
-    </div>
-    <nav>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="marketplace.html">Marketplace</a></li>
-        <li><a href="kabawbaka.html">KabawBaka?</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
-    <div id="userMenu">
-      <a href="login.html" class="btn-login">Login</a>
-    </div>
-  </header>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    fetch('php/navbar.php')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('navbar').innerHTML = html;
+        const logout = document.getElementById('logoutBtn');
+        if (logout) {
+          logout.addEventListener('click', function(e) {
+            e.preventDefault();
+            fetch('php/logout.php')
+              .then(r => r.json())
+              .then(data => { if (data.success) window.location.href = 'login.html'; })
+              .catch(() => location.reload());
+          });
+        }
+      });
+  });
+  </script>
 
   <!-- 🌾 Login Section -->
   <section class="login-section">

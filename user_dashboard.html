@@ -8,27 +8,27 @@
   <script src="js/main.js"></script>
 </head>
 <body>
+  <div id="navbar"></div>
 
-  <!-- 🌾 Navbar -->
-  <header>
-    <div class="logo">
-      <img src="assets/kabawbaka-logo.png" alt="KabawBaka Logo">
-      <h2>KabawBaka?</h2>
-    </div>
-    <nav>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="marketplace.html">Marketplace</a></li>
-        <li><a href="kabawbaka.html">KabawBaka?</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
-    <div id="userMenu">
-      <a href="user_dashboard.html" class="btn-login">Dashboard</a>
-      <a href="#" id="logoutBtn" class="btn-login">Logout</a>
-    </div>
-  </header>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    fetch('php/navbar.php')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('navbar').innerHTML = html;
+        const logout = document.getElementById('logoutBtn');
+        if (logout) {
+          logout.addEventListener('click', function(e) {
+            e.preventDefault();
+            fetch('php/logout.php')
+              .then(r => r.json())
+              .then(data => { if (data.success) window.location.href = 'login.html'; })
+              .catch(() => window.location.href = 'index.html');
+          });
+        }
+      });
+  });
+  </script>
 
   <!-- 🌾 Dashboard Section -->
   <section class="dashboard">
@@ -101,8 +101,9 @@
           } else {
             fetchProfile();
             fetchOrders();
-            fetchCart();
-            initializeCart();
+            // Use centralized cart functions from js/main.js
+            if (typeof initCart === 'function') initCart();
+            if (typeof loadCart === 'function') loadCart();
           }
         });
 
@@ -236,101 +237,7 @@
       `).join('');
     }
 
-    function fetchCart() {
-      fetch('php/fetch_cart.php')
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            displayCart(data.cart);
-          } else {
-            console.error('Error fetching cart:', data.message);
-          }
-        })
-        .catch(error => console.error('Error fetching cart:', error));
-    }
-
-    function displayCart(cart) {
-      const container = document.getElementById('cartContainer');
-      const cartItems = document.getElementById('cartItems');
-      const cartCount = document.getElementById('cartCount');
-
-      if (cart.length === 0) {
-        container.innerHTML = '<p>Your barn is empty. Visit the marketplace to add some items!</p>';
-        cartItems.innerHTML = '<p>Your barn is empty.</p>';
-        cartCount.textContent = '0';
-        return;
-      }
-
-      // Update cart count
-      cartCount.textContent = cart.length;
-
-      // Display cart in dashboard
-      container.innerHTML = cart.map(item => `
-        <div class="cart-item">
-          <img src="${item.image}" alt="${item.product_name}" style="width: 50px; height: 50px; object-fit: cover;">
-          <div class="cart-item-info">
-            <h4>${item.product_name}</h4>
-            <p>Quantity: ${item.quantity}</p>
-            <p>Price: ₱${item.price}</p>
-            <p>Seller: ${item.seller_name}</p>
-          </div>
-        </div>
-      `).join('');
-
-      // Update sidebar cart
-      cartItems.innerHTML = cart.map(item => `
-        <div class="cart-item">
-          <img src="${item.image}" alt="${item.product_name}" style="width: 50px; height: 50px; object-fit: cover;">
-          <div class="cart-item-info">
-            <h4>${item.product_name}</h4>
-            <p>Qty: ${item.quantity} × ₱${item.price}</p>
-            <button class="remove-from-cart" data-cart-id="${item.cart_id}">Remove</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function initializeCart() {
-      // Cart toggle functionality
-      const cartToggle = document.getElementById('cartToggle');
-      const cartSidebar = document.getElementById('cartSidebar');
-      const cartClose = document.querySelector('.cart-close');
-
-      cartToggle.addEventListener('click', function() {
-        cartSidebar.classList.toggle('active');
-      });
-
-      cartClose.addEventListener('click', function() {
-        cartSidebar.classList.remove('active');
-      });
-
-      // Remove from cart functionality
-      document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-from-cart')) {
-          const cartId = e.target.dataset.cartId;
-          removeFromCart(cartId);
-        }
-      });
-    }
-
-    function removeFromCart(cartId) {
-      fetch('php/remove_from_cart.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'cart_id=' + cartId
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          fetchCart(); // Refresh cart
-        } else {
-          alert('Error removing item: ' + data.message);
-        }
-      })
-      .catch(error => console.error('Error removing item:', error));
-    }
+    // Cart functions use centralized implementations in js/main.js
   </script>
 
 </body>

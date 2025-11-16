@@ -44,8 +44,13 @@ class NavbarManager {
 
     async logout() {
         try {
-            await fetch('php/logout.php');
-            window.location.reload();
+            const res = await fetch('php/logout.php');
+            const data = await res.json();
+            if (data && data.success) {
+                window.location.href = 'login.html';
+            } else {
+                window.location.reload();
+            }
         } catch (error) {
             console.error('Error logging out:', error);
             window.location.reload();
