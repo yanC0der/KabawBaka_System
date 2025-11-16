@@ -73,7 +73,20 @@
     async function fetchLatestTips() {
       try {
         const response = await fetch('php/fetch_tips.php');
-        const tips = await response.json();
+        const data = await response.json();
+        let tips = [];
+        if (Array.isArray(data)) {
+          tips = data;
+        } else if (data && data.success === true && Array.isArray(data.tips)) {
+          tips = data.tips;
+        } else if (data && Array.isArray(data)) {
+          tips = data;
+        } else if (data && data.success === false) {
+          console.error('Error fetching tips:', data.message);
+          displayFallbackTips();
+          return;
+        }
+
         displayLatestTips(tips.slice(0, 3)); // Show only the latest 3 tips
       } catch (error) {
         console.error('Error fetching tips:', error);

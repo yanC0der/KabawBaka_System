@@ -309,7 +309,7 @@ function displayProducts(products) {
         productCard.className = 'product-card';
         productCard.dataset.category = product.category;
         productCard.innerHTML = `
-            <img src="uploads/${product.image || 'default.jpg'}" alt="${product.product_name}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
+            <img src="uploads/${product.image || 'default.jpg'}" alt="${product.product_name}" onerror="this.onerror=null;this.src='/kabawbaka/assets/default-product.svg'" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
             <h3>${product.product_name}</h3>
             <p>₱${product.price}</p>
             <div class="product-stats">
@@ -636,7 +636,7 @@ function displayCart(cartItems) {
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item';
         cartItem.innerHTML = `
-            <img src="uploads/${item.image || 'default.jpg'}" alt="${item.product_name}">
+            <img src="uploads/${item.image || 'default.jpg'}" alt="${item.product_name}" onerror="this.onerror=null;this.src='/kabawbaka/assets/default-product.svg'">
             <div class="cart-item-details">
                 <h4>${item.product_name}</h4>
                 <p>₱${item.price} x ${item.quantity} = ₱${itemTotal.toFixed(2)}</p>
@@ -665,7 +665,7 @@ function displayCart(cartItems) {
         } else {
             dashboardContainer.innerHTML = cartItems.map(item => `
                 <div class="cart-item">
-                    <img src="uploads/${item.image || 'default.jpg'}" alt="${item.product_name}" style="width: 50px; height: 50px; object-fit: cover;">
+                    <img src="uploads/${item.image || 'default.jpg'}" alt="${item.product_name}" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.onerror=null;this.src='/kabawbaka/assets/default-product.svg'">
                     <div class="cart-item-info">
                         <h4>${item.product_name}</h4>
                         <p>Quantity: ${item.quantity}</p>
@@ -836,7 +836,7 @@ function displayLivestock(livestock) {
         const livestockCard = document.createElement('div');
         livestockCard.className = 'product-card livestock-card';
         livestockCard.innerHTML = `
-            <img src="uploads/${animal.image || 'default.jpg'}" alt="${animal.name}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
+            <img src="uploads/${animal.image || 'default.jpg'}" alt="${animal.name}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;" onerror="this.onerror=null;this.src='/kabawbaka/assets/default-product.svg'">
             <h3>${animal.name}</h3>
             <p><strong>Type:</strong> ${animal.type}</p>
             <p><strong>Breed:</strong> ${animal.breed}</p>
@@ -886,8 +886,17 @@ async function handleBuyNow(productId, price) {
 async function fetchReviews(productId) {
     try {
         const response = await fetch(`php/fetch_reviews.php?product_id=${productId}`);
-        const reviews = await response.json();
-        displayReviews(productId, reviews);
+        const data = await response.json();
+        // Support both legacy array responses and new { success:true, reviews: [...] } shape
+        if (Array.isArray(data)) {
+            displayReviews(productId, data);
+        } else if (data && data.success === true && Array.isArray(data.reviews)) {
+            displayReviews(productId, data.reviews);
+        } else {
+            console.error('Error fetching reviews:', data && data.message ? data.message : data);
+            // Show a friendly message in the UI
+            displayReviews(productId, []);
+        }
     } catch (error) {
         console.error('Error fetching reviews:', error);
     }
@@ -896,8 +905,13 @@ async function fetchReviews(productId) {
 function displayReviews(productId, reviews) {
     const commentsList = document.getElementById(`comments-list-${productId}`);
     if (!commentsList) return;
-
     commentsList.innerHTML = '';
+    if (!Array.isArray(reviews)) {
+        console.error('displayReviews called with non-array:', reviews);
+        commentsList.innerHTML = '<p>No reviews available.</p>';
+        return;
+    }
+
     if (reviews.length === 0) {
         commentsList.innerHTML = '<p>No reviews yet. Be the first to review!</p>';
         return;

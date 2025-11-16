@@ -65,7 +65,16 @@
     async function fetchTips() {
       try {
         const response = await fetch('php/fetch_tips.php');
-        const tips = await response.json();
+        const data = await response.json();
+        let tips = [];
+        if (Array.isArray(data)) {
+          tips = data;
+        } else if (data && data.success === true && Array.isArray(data.tips)) {
+          tips = data.tips;
+        } else if (data && data.success === false) {
+          console.error('Error fetching tips:', data.message);
+          return;
+        }
         displayTips(tips);
       } catch (error) {
         console.error('Error fetching tips:', error);
@@ -75,8 +84,12 @@
     function displayTips(tips) {
       const tipsList = document.getElementById('tipsList');
       if (!tipsList) return;
-
       tipsList.innerHTML = '';
+      if (!Array.isArray(tips)) {
+        console.error('displayTips called with non-array:', tips);
+        return;
+      }
+
       tips.forEach(tip => {
         const tipCard = document.createElement('div');
         tipCard.className = 'tip-card';
